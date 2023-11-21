@@ -6,11 +6,10 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); // Adjust based on your storage solution
 
 router.post('/', authMiddleware, horseController.createHorse);
-router.put('/:horseId', authMiddleware, horseController.updateHorse);
-router.delete('/:horseId', authMiddleware, horseController.deleteHorse);
-// Add a route for updating horse with file upload
+
+// Combined PUT route for updating horse data and handling file upload
 router.put('/:horseId', authMiddleware, upload.single('medicalDocument'), horseController.updateHorse);
 
-// Define other routes (GET, PUT, DELETE) similarly
+router.delete('/:horseId', authMiddleware, horseController.deleteHorse);
 
 module.exports = router;
