@@ -6,12 +6,17 @@ const userRoutes = require('./routes/userRoutes');
 const stableRoutes = require('./routes/stableRoutes'); // Import stable routes
 const bookingRoutes = require('./routes/bookingRoutes');
 const horseRoutes = require('./routes/horseRoutes');
+const cors = require('cors');
 
 
 const app = express();
 const port = 3001;
 
 connectDB(); // Connect to MongoDB
+
+app.use(cors({
+  origin: 'http://localhost:3000' // Replace with your frontend's URL
+}));
 
 app.use(express.json()); // For parsing JSON request bodies
 
