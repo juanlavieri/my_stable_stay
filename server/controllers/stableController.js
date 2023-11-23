@@ -1,61 +1,66 @@
 const Stable = require('../models/Stable');
+const Stall = require('../models/Stall');
 
-// Create a new stable
 exports.createStable = async (req, res) => {
   try {
-    const newStable = new Stable(req.body);
+    const { name, location, description, pricePerNight, amenities, paddocks, groomAvailable, ownerQuartersAvailable, pictures } = req.body;
+
+    const newStable = new Stable({
+      owner: req.user.id, // Assuming the user ID is attached to the request
+      name,
+      location,
+      description,
+      pricePerNight,
+      amenities,
+      paddocks,
+      groomAvailable,
+      ownerQuartersAvailable,
+      pictures
+    });
+
     await newStable.save();
     res.status(201).json(newStable);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error(error);
+    res.status(500).send('Server error');
   }
 };
 
-// Get all stables
-exports.getAllStables = async (req, res) => {
+exports.getStable = async (req, res) => {
   try {
-    const stables = await Stable.find();
-    res.status(200).json(stables);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-// Get a single stable by ID
-exports.getStableById = async (req, res) => {
-  try {
-    const stable = await Stable.findById(req.params.id);
+    const stable = await Stable.findById(req.params.stableId).populate('stalls');
     if (!stable) {
-      return res.status(404).json({ message: "Stable not found" });
+      return res.status(404).json({ message: 'Stable not found' });
     }
-    res.status(200).json(stable);
+    res.json(stable);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error(error);
+    res.status(500).send('Server error');
   }
 };
 
-// Update a stable by ID
 exports.updateStable = async (req, res) => {
   try {
-    const updatedStable = await Stable.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedStable) {
-      return res.status(404).json({ message: "Stable not found" });
+    const stable = await Stable.findByIdAndUpdate(req.params.stableId, req.body, { new: true });
+    if (!stable) {
+      return res.status(404).json({ message: 'Stable not found' });
     }
-    res.status(200).json(updatedStable);
+    res.json(stable);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error(error);
+    res.status(500).send('Server error');
   }
 };
 
-// Delete a stable by ID
 exports.deleteStable = async (req, res) => {
   try {
-    const deletedStable = await Stable.findByIdAndDelete(req.params.id);
-    if (!deletedStable) {
-      return res.status(404).json({ message: "Stable not found" });
+    const stable = await Stable.findByIdAndDelete(req.params.stableId);
+    if (!stable) {
+      return res.status(404).json({ message: 'Stable not found' });
     }
-    res.status(200).json({ message: "Stable deleted successfully" });
+    res.json({ message: 'Stable deleted' });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error(error);
+    res.status(500).send('Server error');
   }
 };
