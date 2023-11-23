@@ -19,7 +19,7 @@ exports.register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      roles
+      roles: ['user','stableOwner']
     });
 
     await user.save();
@@ -55,6 +55,11 @@ exports.login = async (req, res) => {
       if (err) throw err;
       res.json({ token });
     });
+
+    if (!user.roles || user.roles.length === 0) {
+      user.roles = ['user', 'stableOwner'];
+      await user.save();
+    }
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Server error');
@@ -64,17 +69,17 @@ exports.login = async (req, res) => {
 // Get user profile
 exports.getProfile = async (req, res) => {
   try {
-    // Assuming you have access to the user's ID from the request
-    // For example, using req.userId if you're using JWT tokens
-    const user = await User.findById(req.userId);
+    const userId = req.user.id;  // Get user ID from the JWT token
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json(user);
+    res.json({ name: user.name, email: user.email, roles: user.roles });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Update user profile
 exports.updateProfile = async (req, res) => {
@@ -94,3 +99,6 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+
