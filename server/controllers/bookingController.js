@@ -33,4 +33,71 @@ exports.getUserBookings = async (req, res) => {
       console.error(error);
       res.status(500).send('Server error');
     }
-  };
+};
+
+exports.updateBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.bookingId;
+    const { startDate, endDate, stable } = req.body;
+
+    // Check if the new dates overlap with any existing bookings for the same stable
+    const conflictingBookings = await Booking.find({
+      _id: { $ne: bookingId }, // Exclude the current booking
+      stable,
+      $or: [
+        { startDate: { $lte: endDate }, endDate: { $gte: startDate } }, // New dates overlap existing booking
+      ]
+    });
+
+    if (conflictingBookings.length > 0) {
+      return res.status(400).json({ message: 'Selected dates are not available' });
+    }
+
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      bookingId,
+      { startDate, endDate },
+      { new: true }
+    );
+
+    if (!updatedBooking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.json(updatedBooking);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.deleteBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.bookingId;
+
+    const deletedBooking = await Booking.findByIdAndDelete(bookingId);
+
+    if (!deletedBooking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.json({ message: 'Booking deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.getStableBookings = async (req, res) => {
+  try {
+    const stableId = req.params.stableId;
+
+    const bookings = await Booking.find({ stable: stableId }).populate('user');
+
+    res.json(bookings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+};
+
+
