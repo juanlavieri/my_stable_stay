@@ -1,11 +1,25 @@
+'use strict';
+
 const mongoose = require('mongoose');
 
-const stallSchema = new mongoose.Schema({
-  stable: { type: mongoose.Schema.Types.ObjectId, ref: 'Stable', required: true },
-  dimensions: { type: String, required: true },
-  arrivalReady: { type: Boolean, default: false },
-  price: { type: Number }, // Optional, if prices vary by stall
-  description: { type: String, default: '' }
+const Schema = mongoose.Schema;
+
+const StallSchema = new Schema({
+  name: String,
+  description: String,
+  size: String,
+  available: Boolean,
+  amenities: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Amenity',
+    },
+  ],
+  stable: {
+    type: Schema.Types.ObjectId,
+    ref: 'Stable',
+    required: true,
+  },
 });
 
-module.exports = mongoose.model('Stall', stallSchema);
+module.exports = mongoose.model('Stall', StallSchema);

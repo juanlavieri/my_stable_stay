@@ -1,25 +1,38 @@
+'use strict';
+
 const mongoose = require('mongoose');
 
-const bookingSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  stable: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Stable', // Replace with your Stable model name if different
-    required: true
-  },
+const Schema = mongoose.Schema;
+
+const BookingSchema = new Schema({
   startDate: {
     type: Date,
-    required: true
+    required: true,
   },
   endDate: {
     type: Date,
-    required: true
+    required: true,
   },
-  // Add other fields as necessary
+  numberOfHorses: {
+    type: Number,
+    required: true,
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  stable: {
+    type: Schema.Types.ObjectId,
+    ref: 'Stable',
+    required: true,
+  },
+  stalls: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Stall',
+    },
+  ],
 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+module.exports = mongoose.model('Booking', BookingSchema);
